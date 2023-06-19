@@ -1,0 +1,8 @@
+---
+all:
+  vars:
+    user_name: "bitcanna"
+
+  children:
+    node:
+      hosts: "{{ target}}"
