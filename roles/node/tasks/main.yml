@@ -1,0 +1,20 @@
+---
+- name: Create User
+  hosts: all
+  become: true
+  tasks:
+    - name: Check if user_name is defined
+      fail:
+        msg: "The 'user_name' variable is not defined in the inventory file."
+      when: user_name is undefined or user_name == ''
+
+    - name: Create the user
+      user:
+        name: "{{ user_name }}"
+        state: present
+        groups: adm
+        append: true
+        shell: /bin/bash
+        system: true
+        create_home: true
+        home: "/home/{{ user_name }}"
