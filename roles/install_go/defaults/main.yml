@@ -1,0 +1,5 @@
+go_arch: "{{binary_arch_map[ansible_architecture]}}"
+go_version: 1.19
+binary_arch_map:
+  aarch64: "linux-arm64"
+  x86_64: "linux-amd64"
