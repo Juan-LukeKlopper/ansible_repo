@@ -1,7 +1,8 @@
 ---
 all:
   vars:
-    user_name: "bitcanna"
+    user_name: "ipfs"
+    go_version: "1.20.4"
 
   children:
     node:
