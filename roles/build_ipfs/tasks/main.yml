@@ -25,17 +25,16 @@
     path: "{{ ipfs_home }}"
   register: ipfs_home_exists
 
-    #- name: Init ipfs
-    #ansible.builtin.shell: |
-    #cd $HOME
-    #ipfs init {{ chain_moniker }} --home {{ chain_home }} --chain-id {{ chain_id }}
+- name: Init ipfs
+  ansible.builtin.shell: |
+   cd $HOME
+   /home/{{ user_name }}/go/bin/ipfs init
 
-    #- name: Add chain bin from go/bin to .bashrc PATH
-    #when: not use_cosmovisor
-    #ansible.builtin.blockinfile:
-    #dest: '{{ node_user_home }}/.bashrc'
-    #block: |
-    #  export PATH="$PATH:{{ node_user_home }}/go/bin"
-    #marker: '# {mark} ANSIBLE MANAGED BLOCK - CHAIN PATH'
-    #insertbefore: EOF
-    #create: true
+- name: Add ipfs bin from go/bin to .bashrc PATH
+  ansible.builtin.blockinfile:
+    dest: '/home/{{ user_name }}/.bashrc'
+    block: |
+      export PATH="$PATH:/home/{ user_name }}/go/bin"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK - CHAIN PATH'
+    insertbefore: EOF
+    create: true
