@@ -1,0 +1,41 @@
+- name: Prepare go folder
+  ansible.builtin.file:
+    path: "/home/{{ user_name }}/go/bin"
+    state: directory
+    recurse: true
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+
+- name: Clone ipfs repo
+  ansible.builtin.git:
+    repo: "https://github.com/ipfs/kubo.git"
+    dest: "{{ ipfs_repo_dir }}"
+    version: "{{ repo_version }}"
+
+- name: Install ipfs cli
+  ansible.builtin.shell: |
+    PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+    make install
+  args:
+    chdir: "{{ ipfs_repo_dir }}"
+  ignore_errors: true
+
+- name: Check if ipfs home folder exists
+  ansible.builtin.stat:
+    path: "{{ ipfs_home }}"
+  register: ipfs_home_exists
+
+    #- name: Init ipfs
+    #ansible.builtin.shell: |
+    #cd $HOME
+    #ipfs init {{ chain_moniker }} --home {{ chain_home }} --chain-id {{ chain_id }}
+
+    #- name: Add chain bin from go/bin to .bashrc PATH
+    #when: not use_cosmovisor
+    #ansible.builtin.blockinfile:
+    #dest: '{{ node_user_home }}/.bashrc'
+    #block: |
+    #  export PATH="$PATH:{{ node_user_home }}/go/bin"
+    #marker: '# {mark} ANSIBLE MANAGED BLOCK - CHAIN PATH'
+    #insertbefore: EOF
+    #create: true

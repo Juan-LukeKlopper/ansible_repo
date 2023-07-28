@@ -1,0 +1,4 @@
+---
+ipfs_repo_dir: "/home/{{ user_name }}/kubo"
+repo_version: "v0.21.0"
+ipfs_home: "/home/{{ user_name }}/.ipfs"
