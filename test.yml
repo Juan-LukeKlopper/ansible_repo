@@ -1,0 +1,9 @@
+---
+# Configure a chain node
+- name: Configure a chain node
+  hosts: node
+  roles:
+    - {role: create_user, become: true }
+    - {role: add_dependencies, become: true }
+    - {role: install_go, become_user: "{{ user_name }}", become: true }
+    - {role: build_ipfs, become_user: "{{ user_name }}", become: true }
