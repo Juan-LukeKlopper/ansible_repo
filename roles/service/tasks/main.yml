@@ -1,0 +1,23 @@
+---
+- name: Configure systemd service for ipfs
+  ansible.builtin.template:
+    src: ipfs.service.j2
+    dest: "/etc/systemd/system/ipfs.service"
+    force: false
+
+- name: Enable ipfs systemd service
+  ansible.builtin.systemd:
+    daemon_reload: true
+    state: stopped
+    enabled: true
+    name: "ipfs"
+
+- name: Start ipfs systemd service
+  ansible.builtin.systemd:
+    daemon_reload: true
+    state: restarted
+    enabled: true
+    name: "ipfs"
+  tags:
+    - ipfs_start
+    - ipfs_restart

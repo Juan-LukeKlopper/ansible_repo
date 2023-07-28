@@ -7,3 +7,4 @@
     - {role: add_dependencies, become: true }
     - {role: install_go, become_user: "{{ user_name }}", become: true }
     - {role: build_ipfs, become_user: "{{ user_name }}", become: true }
+    - {role: service, become: true } 
