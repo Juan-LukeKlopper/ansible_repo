@@ -6,19 +6,41 @@
     owner: "{{ user_name }}"
     group: "{{ user_name }}"
 
-- name: Clone ipfs repo
-  ansible.builtin.git:
-    repo: "https://github.com/ipfs/kubo.git"
-    dest: "{{ ipfs_repo_dir }}"
-    version: "{{ repo_version }}"
-
-- name: Install ipfs cli
-  ansible.builtin.shell: |
-    PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
-    make install
-  args:
-    chdir: "{{ ipfs_repo_dir }}"
+- name: Download IPFS Kubo Release
+  ansible.builtin.get_url:
+    url: "{{ kubo_download_url }}"
+    dest: "/tmp/kubo_{{ kubo_version }}_linux-amd64.tar.gz"
+    mode: '0644'
+  register: download_result
   ignore_errors: true
+
+- name: Extract IPFS Kubo
+  ansible.builtin.unarchive:
+    src: "/tmp/kubo_{{ kubo_version }}_linux-amd64.tar.gz"
+    dest: "{{ kubo_install_dir }}"
+    remote_src: true
+  when: download_result is succeeded
+
+- name: Run IPFS Installation Script
+  ansible.builtin.command: sudo bash "{{ kubo_install_dir }}/kubo/install.sh"
+  register: install_result
+  ignore_errors: true
+  changed_when: "'already installed' not in install_result.stdout"
+
+- name: Display IPFS Version
+  ansible.builtin.command: ipfs --version
+  register: version_result
+  ignore_errors: true
+  changed_when: false
+
+- name: Show IPFS Version Output
+  ansible.builtin.debug:
+    var: version_result.stdout_lines
+
+- name: Cleanup Downloaded Archive
+  ansible.builtin.file:
+    path: "/tmp/kubo_{{ kubo_version }}_linux-amd64.tar.gz"
+    state: absent
 
 - name: Check if ipfs home folder exists
   ansible.builtin.stat:
@@ -28,13 +50,17 @@
 - name: Init ipfs
   ansible.builtin.shell: |
    cd $HOME
-   /home/{{ user_name }}/go/bin/ipfs init
+   export IPFS_PATH="{{ ipfs_home }}"
+   /usr/local/bin/ipfs init
+  hanged_when: not ("Initialization done" in command_result.stdout)
+  register: command_result
 
-- name: Add ipfs bin from go/bin to .bashrc PATH
-  ansible.builtin.blockinfile:
-    dest: '/home/{{ user_name }}/.bashrc'
-    block: |
-      export PATH="$PATH:/home/{ user_name }}/go/bin"
-    marker: '# {mark} ANSIBLE MANAGED BLOCK - CHAIN PATH'
-    insertbefore: EOF
-    create: true
+- name: Set owner and group for Kubo and IPFS directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    recurse: true
+  with_items:
+    - "{{ kubo_install_dir }}"
+    - "{{ ipfs_home }}"
