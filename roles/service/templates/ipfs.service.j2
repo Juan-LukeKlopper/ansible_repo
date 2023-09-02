@@ -1,0 +1,15 @@
+[Unit]
+Description=ipfs
+After=network-online.target
+
+[Service]
+User={{ user_name }}
+ExecStart=/usr/local/bin/ipfs daemon
+StandardOutput=append:/var/log/ipfs.log
+StandardError=append:/var/log/ipfs.log
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
