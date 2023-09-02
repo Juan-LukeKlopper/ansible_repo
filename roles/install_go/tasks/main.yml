@@ -1,9 +1,10 @@
 - name: Check golang version
   ansible.builtin.shell: |
-    PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+    PATH=$PATH:$HOME/go/bin:$HOME/go_projects/bin
     go version
   register: go_current_version
   ignore_errors: true
+  changes_when: false
 
 - name: Debug output
   ansible.builtin.debug:
@@ -12,15 +13,16 @@
 - name: Extract golang
   ansible.builtin.unarchive:
     src: "https://golang.org/dl/go{{ go_version }}.{{ go_arch }}.tar.gz"
-    dest: /usr/local
+    dest: "/home/{{ user_name }}/"
     remote_src: true
-  when: go_current_version.rc != 0
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
 
 - name: Export path to include go in bashrc file
   ansible.builtin.blockinfile:
     path: "/home/{{ user_name }}/.bashrc"
     block: |
-      export GOROOT=/usr/local/go
-      export GOPATH=$HOME/go
+      export GOROOT=$HOME/go
+      export GOPATH=$HOME/go_projects
       export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
     marker: "# {mark} ANSIBLE MANAGED BLOCK GOPATH"
