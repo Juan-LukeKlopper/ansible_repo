@@ -4,6 +4,7 @@
     src: ipfs.service.j2
     dest: "/etc/systemd/system/ipfs.service"
     force: false
+    mode: "0644"
 
 - name: Enable ipfs systemd service
   ansible.builtin.systemd:
